@@ -183,31 +183,53 @@ function ShopsSection() {
 
 function ChatSection() {
   const [chatMessage, setChatMessage] = useState('');
-  const [isVoiceMode, setIsVoiceMode] = useState(false); // 마이크 모드 상태 추가
+  const [isVoiceMode, setIsVoiceMode] = useState(false);
+  // 처음 봇이 보내는 웰컴 메시지 세팅
   const [messages, setMessages] = useState([
     { id: 1, sender: 'bot', text: '안녕하세요 무엇을 원하시나요??' }
   ]);
 
-  const handleSend = () => {
-    if (!chatMessage.trim()) return;
+  // 🚀 실제 제미나이 백엔드와 통신하는 함수
+  const handleSend = async (textToSend) => {
+    // 매개변수로 들어온 텍스트가 있으면 그걸 쓰고, 없으면 입력창(chatMessage)에 있는 걸 씁니다.
+    const userText = textToSend || chatMessage;
+    if (!userText.trim()) return;
     
-    // 사용자 메시지 추가
-    const userMsg = { id: Date.now(), sender: 'user', text: chatMessage };
+    // 1. 내가 보낸 메시지를 화면에 먼저 추가
+    const userMsg = { id: Date.now(), sender: 'user', text: userText };
     setMessages(prev => [...prev, userMsg]);
-    setChatMessage('');
+    setChatMessage(''); // 입력창 비우기
 
-    // 챗봇 답변 시뮬레이션 (선택 사항)
-    setTimeout(() => {
-      setMessages(prev => [...prev, {
-        id: Date.now() + 1,
-        sender: 'bot',
-        text: `'${userMsg.text}'에 대한 검색 결과입니다.`
-      }]);
-    }, 600);
+    // 2. 제미나이가 생각하는 동안 보여줄 로딩 메시지 추가
+    const botLoadingId = Date.now() + 1;
+    setMessages(prev => [...prev, { id: botLoadingId, sender: 'bot', text: 'Guidant가 생각 중입니다...' }]);
+
+    try {
+      // 3. 방금 작동시킨 Node.js 백엔드 서버로 POST 요청 보내기!
+      const res = await fetch('http://localhost:3000/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userText }),
+      });
+      
+      const data = await res.json();
+
+      // 4. 백엔드가 돌려준 실제 제미나이 답변(data.reply)으로 로딩 메시지 교체하기
+      setMessages(prev => 
+        prev.map(msg => msg.id === botLoadingId ? { ...msg, text: data.reply } : msg)
+      );
+    } catch (error) {
+      console.error('챗봇 통신 에러:', error);
+      // 에러 발생 시 안내 메시지로 교체
+      setMessages(prev => 
+        prev.map(msg => msg.id === botLoadingId ? { ...msg, text: '죄송합니다. 서버와 연결이 원활하지 않습니다. 백엔드 서버가 켜져 있는지 확인해 주세요!' } : msg)
+      );
+    }
   };
 
+  // 빠른 질문 칩 클릭 시 바로 전송되도록 처리
   const handleChipClick = (text) => {
-    setChatMessage(text);
+    handleSend(text);
   };
 
   return (
@@ -226,7 +248,7 @@ function ChatSection() {
               {msg.text}
             </div>
 
-            {/* 첫 봇 메시지 아래에만 추천 질문 칩 표시 (피그마 시안 반영) */}
+            {/* 첫 봇 메시지 아래에만 추천 질문 칩 표시 */}
             {msg.sender === 'bot' && msg.id === 1 && !isVoiceMode && (
               <div className="flex gap-2 mt-2 pl-1">
                 <button 
@@ -250,16 +272,15 @@ function ChatSection() {
       {/* 2. 하단 고정 입력 및 컨트롤 영역 */}
       <div className="relative bg-white rounded-t-3xl shadow-[0_-4px_20px_rgba(0,0,0,0.05)] p-4 pt-6 pb-8">
         
-        {/* [시안 오른쪽] 음성 인식 활성화 시 나타나는 거대 플로팅 마이크 */}
+        {/* 음성 인식 활성화 시 나타나는 거대 플로팅 마이크 */}
         {isVoiceMode && (
           <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex flex-col items-center z-20">
             <button 
               onClick={() => setIsVoiceMode(false)}
-              className="w-20 h-20 bg-gray-200 text-black rounded-full flex items-center justify-center border-4 border-white shadow-lg hover:bg-gray-300 transition-all animate-pulse"
+              className="w-20 h-20 bg-gray-200 text-black rounded-full flex items-center justify-center border-4 border-white shadow-lg hover:bg-gray-300 transition-all"
             >
               <Mic className="w-8 h-8" />
             </button>
-            {/* 마이크 모드일 때 하단으로 내려오는 추천 칩 */}
             <div className="flex gap-2 mt-4">
               <button 
                 onClick={() => handleChipClick('오늘 뭐 먹지?')}
@@ -292,7 +313,7 @@ function ChatSection() {
           
           {/* 전송 버튼 */}
           <button 
-            onClick={handleSend}
+            onClick={() => handleSend()}
             className="w-10 h-10 bg-gray-300 hover:bg-gray-400 active:bg-gray-500 text-black rounded-full flex items-center justify-center transition-colors flex-shrink-0"
           >
             <svg className="w-4 h-4 transform rotate-90 ml-0.5 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
@@ -300,7 +321,7 @@ function ChatSection() {
             </svg>
           </button>
 
-          {/* [시안 왼쪽] 기본 상태의 우측 마이크 버튼 */}
+          {/* 기본 상태의 우측 마이크 버튼 */}
           <button 
             onClick={() => setIsVoiceMode(true)}
             className="w-10 h-10 bg-gray-200 hover:bg-gray-300 text-black rounded-full flex items-center justify-center transition-colors flex-shrink-0"
