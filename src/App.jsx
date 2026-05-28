@@ -1,9 +1,9 @@
 import { MapPin, Search, MessageSquare, Mic, ShoppingCart, Plus, TrendingUp, ArrowLeft } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const SHOPS = [
-  { id: 1, x: 518, y: 494, name: 'AI 임베디드 실습실', info: '2,3,4교시 수업!', range: 50 },
-  { id: 2, x: 107, y: 87, name: 'ICT PBL실', info: '회의 공간', range: 30 },
+  { id: 1, x: 518, y: 494, name: 'AI 임베디드 실습실', info: '2,3,4교시 수업!', range: 50, beaconId: 'A1' },
+  { id: 2, x: 107, y: 87, name: 'ICT PBL실', info: '회의 공간', range: 30, beaconId: 'A2' },
 ];
 
 const MENU_ITEMS = [
@@ -18,6 +18,19 @@ function MapSection() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [nearbyShop, setNearbyShop] = useState(null);
   const [selectedShop, setSelectedShop] = useState(null);
+  const [myPos, setMyPos] = useState(null);
+
+useEffect(() => {
+  const interval = setInterval(async () => {
+    const res = await fetch('http://localhost:3000/beacon');
+    const data = await res.json();
+    if (data.beaconId) {
+      const shop = SHOPS.find(s => s.beaconId === data.beaconId);
+      if (shop) setMyPos({ x: shop.x, y: shop.y });
+    }
+  }, 1000);
+  return () => clearInterval(interval);
+}, []);
 
   return (
     <div className="relative w-full overflow-hidden" style={{ height: 'calc(100vh - 57px)' }}>
@@ -64,6 +77,12 @@ function MapSection() {
           {/* 내 위치 (마우스 커서) */}
           <circle cx={mousePos.x} cy={mousePos.y} r={8} fill="rgba(37,99,235,0.2)" stroke="#2563eb" strokeWidth={2} />
           <circle cx={mousePos.x} cy={mousePos.y} r={3} fill="#2563eb" />
+          {myPos && (
+            <>
+              <circle cx={myPos.x} cy={myPos.y} r={14} fill="rgba(34,197,94,0.2)" stroke="#16a34a" strokeWidth={2} />
+              <circle cx={myPos.x} cy={myPos.y} r={6} fill="#16a34a" />
+            </>
+          )}
 
           {/* 근처 상점까지 선 */}
           {nearbyShop && (
