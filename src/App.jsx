@@ -7,7 +7,7 @@ const SHOPS = [
 ];
 
 const MENU_ITEMS = [
-  { id: 'map', icon: MapPin, label: '지도 및 경로 안내', desc: '상점 위치 확인 & 길찾기', color: '#e8f4f8', accent: '#2a7aad' },
+  { id: 'map', icon: MapPin, label: '지도 및 경로 안내', desc: '전시물 위치 확인 & 길찾기', color: '#e8f4f8', accent: '#2a7aad' },
   { id: 'shops', icon: Search, label: '주변 상점', desc: '내 근처 상점 목록', color: '#f0f8ec', accent: '#3a8a3a' },
   { id: 'chat', icon: MessageSquare, label: 'AI 도우미', desc: '무엇이든 물어보세요', color: '#fdf4e8', accent: '#c07a1a' },
   { id: 'shopping', icon: ShoppingCart, label: '쇼핑 목록', desc: '살 것들을 메모하세요', color: '#f5ecf8', accent: '#7a3aad' },
