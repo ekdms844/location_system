@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 
 const SHOPS = [
   { id: 1, x: 518, y: 494, name: 'AI 임베디드 실습실', info: '2,3,4교시 수업!', range: 50, beaconId: 'A1' },
-  { id: 2, x: 107, y: 87, name: 'ICT PBL실', info: '회의 공간', range: 30, beaconId: 'A2' },
+  { id: 2, x: 107, y: 87, name: 'ICT PBL실', info: '대여 가능', range: 30, beaconId: 'A2' },
 ];
 
 const MENU_ITEMS = [
