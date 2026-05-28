@@ -2,8 +2,8 @@ import { MapPin, Search, MessageSquare, Mic, ShoppingCart, Plus, TrendingUp, Arr
 import { useState } from 'react';
 
 const SHOPS = [
-  { id: 1, x: 226, y: 186, name: '꿀맛 떡집', info: '식혜 서비스!', range: 50 },
-  { id: 2, x: 107, y: 87, name: '싱싱 수산', info: '오늘 갈치 대박', range: 30 },
+  { id: 1, x: 518, y: 494, name: 'AI 임베디드 실습실', info: '2,3,4교시 수업!', range: 50 },
+  { id: 2, x: 107, y: 87, name: 'ICT PBL실', info: '회의 공간', range: 30 },
 ];
 
 const MENU_ITEMS = [
