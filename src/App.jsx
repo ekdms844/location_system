@@ -183,26 +183,132 @@ function ShopsSection() {
 
 function ChatSection() {
   const [chatMessage, setChatMessage] = useState('');
+  const [isVoiceMode, setIsVoiceMode] = useState(false); // 마이크 모드 상태 추가
+  const [messages, setMessages] = useState([
+    { id: 1, sender: 'bot', text: '안녕하세요 무엇을 원하시나요??' }
+  ]);
+
+  const handleSend = () => {
+    if (!chatMessage.trim()) return;
+    
+    // 사용자 메시지 추가
+    const userMsg = { id: Date.now(), sender: 'user', text: chatMessage };
+    setMessages(prev => [...prev, userMsg]);
+    setChatMessage('');
+
+    // 챗봇 답변 시뮬레이션 (선택 사항)
+    setTimeout(() => {
+      setMessages(prev => [...prev, {
+        id: Date.now() + 1,
+        sender: 'bot',
+        text: `'${userMsg.text}'에 대한 검색 결과입니다.`
+      }]);
+    }, 600);
+  };
+
+  const handleChipClick = (text) => {
+    setChatMessage(text);
+  };
+
   return (
-    <section className="p-4">
-      <h2 className="text-black mb-3">AI 도우미</h2>
-      <div className="w-full h-40 border border-gray-400 bg-gray-50 p-3 mb-3 overflow-y-auto">
-        <div className="flex items-start gap-2 mb-2">
-          <MessageSquare className="w-4 h-4 text-gray-700 mt-1 flex-shrink-0" />
-          <p className="text-gray-700 text-sm m-0">무엇을 도와드릴까요?</p>
-        </div>
+    <section className="relative flex flex-col bg-[#F3F3F3]" style={{ height: 'calc(100vh - 57px)' }}>
+      
+      {/* 1. 채팅 메시지 및 상단 추천 칩 영역 */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.map((msg) => (
+          <div key={msg.id} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
+            {/* 말풍선 */}
+            <div className={`max-w-[80%] px-4 py-2.5 rounded-2xl shadow-sm text-sm ${
+              msg.sender === 'user' 
+                ? 'bg-black text-white rounded-tr-none' 
+                : 'bg-white text-black border border-gray-200 rounded-tl-none'
+            }`}>
+              {msg.text}
+            </div>
+
+            {/* 첫 봇 메시지 아래에만 추천 질문 칩 표시 (피그마 시안 반영) */}
+            {msg.sender === 'bot' && msg.id === 1 && !isVoiceMode && (
+              <div className="flex gap-2 mt-2 pl-1">
+                <button 
+                  onClick={() => handleChipClick('오늘 뭐 먹지?')}
+                  className="px-3 py-1.5 bg-white border border-gray-300 rounded-full text-xs text-black font-medium hover:bg-gray-50 active:bg-gray-100 transition-colors shadow-sm"
+                >
+                  오늘 뭐 먹지?
+                </button>
+                <button 
+                  onClick={() => handleChipClick('떡볶이 맛집')}
+                  className="px-3 py-1.5 bg-white border border-gray-300 rounded-full text-xs text-black font-medium hover:bg-gray-50 active:bg-gray-100 transition-colors shadow-sm"
+                >
+                  떡볶이 맛집
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
       </div>
-      <div className="flex gap-2">
-        <input
-          type="text"
-          placeholder="질문을 입력하세요"
-          value={chatMessage}
-          onChange={(e) => setChatMessage(e.target.value)}
-          className="flex-1 px-3 py-2 border border-gray-400 bg-white text-black placeholder:text-gray-500"
-        />
-        <button className="px-4 py-2 bg-gray-700 text-white border border-gray-700">
-          <Mic className="w-4 h-4" />
-        </button>
+
+      {/* 2. 하단 고정 입력 및 컨트롤 영역 */}
+      <div className="relative bg-white rounded-t-3xl shadow-[0_-4px_20px_rgba(0,0,0,0.05)] p-4 pt-6 pb-8">
+        
+        {/* [시안 오른쪽] 음성 인식 활성화 시 나타나는 거대 플로팅 마이크 */}
+        {isVoiceMode && (
+          <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex flex-col items-center z-20">
+            <button 
+              onClick={() => setIsVoiceMode(false)}
+              className="w-20 h-20 bg-gray-200 text-black rounded-full flex items-center justify-center border-4 border-white shadow-lg hover:bg-gray-300 transition-all animate-pulse"
+            >
+              <Mic className="w-8 h-8" />
+            </button>
+            {/* 마이크 모드일 때 하단으로 내려오는 추천 칩 */}
+            <div className="flex gap-2 mt-4">
+              <button 
+                onClick={() => handleChipClick('오늘 뭐 먹지?')}
+                className="px-3 py-1.5 bg-white border border-gray-300 rounded-full text-xs text-black font-medium shadow-sm"
+              >
+                오늘 뭐 먹지?
+              </button>
+              <button 
+                onClick={() => handleChipClick('떡볶이 맛집')}
+                className="px-3 py-1.5 bg-white border border-gray-300 rounded-full text-xs text-black font-medium shadow-sm"
+              >
+                떡볶이 맛집
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* 텍스트 입력 바 레이아웃 */}
+        <div className={`flex items-center gap-2 max-w-md mx-auto ${isVoiceMode ? 'mt-16 opacity-50 pointer-events-none' : ''}`}>
+          <div className="flex-1 flex items-center bg-[#E5E5E5] rounded-full px-4 py-2 border border-gray-300">
+            <input
+              type="text"
+              placeholder="메세지 입력"
+              value={chatMessage}
+              onChange={(e) => setChatMessage(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+              className="flex-1 bg-transparent text-black text-sm outline-none placeholder:text-gray-500"
+            />
+          </div>
+          
+          {/* 전송 버튼 */}
+          <button 
+            onClick={handleSend}
+            className="w-10 h-10 bg-gray-300 hover:bg-gray-400 active:bg-gray-500 text-black rounded-full flex items-center justify-center transition-colors flex-shrink-0"
+          >
+            <svg className="w-4 h-4 transform rotate-90 ml-0.5 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M2 21l21-9L2 3v7l15 2-15 2v7z" />
+            </svg>
+          </button>
+
+          {/* [시안 왼쪽] 기본 상태의 우측 마이크 버튼 */}
+          <button 
+            onClick={() => setIsVoiceMode(true)}
+            className="w-10 h-10 bg-gray-200 hover:bg-gray-300 text-black rounded-full flex items-center justify-center transition-colors flex-shrink-0"
+          >
+            <Mic className="w-4 h-4 text-gray-700" />
+          </button>
+        </div>
+
       </div>
     </section>
   );
