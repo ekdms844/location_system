@@ -128,26 +128,36 @@ function MapSection() {
 
   // 내 위치를 서버에 신고
   useEffect(() => {
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch('http://localhost:3000/beacon');
-        const data = await res.json();
-        if (data.beaconId) {
-          const exhibit = EXHIBITS.find(e => e.beaconId === data.beaconId);
-          if (exhibit) {
-            setMyPos({ x: exhibit.x, y: exhibit.y });
-            // 혼잡도 서버에 신고
-            await fetch('http://localhost:3000/presence', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ userId, beaconId: data.beaconId }),
-            });
+      const interval = setInterval(async () => {
+        try {
+          const res = await fetch('http://localhost:3000/beacon');
+          const data = await res.json();
+          
+          // 🔍 브라우저 콘솔(F12)에서 비콘 데이터가 어떤 모양으로 들어오는지 실시간 확인용 로그
+          console.log("현재 서버에서 가져온 비콘 신호:", data);
+
+          // 서버에서 준 데이터에 beaconId가 진짜 들어있는지 확인
+          if (data && data.beaconId) {
+            const exhibit = EXHIBITS.find(e => e.beaconId === data.beaconId);
+            if (exhibit) {
+              // 지도 위에 내 초록색 위치 핀 찍기
+              setMyPos({ x: exhibit.x, y: exhibit.y });
+              
+              // 내가 이 구역에 있다고 혼잡도 서버에 다시 신고하기
+              await fetch('http://localhost:3000/presence', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, beaconId: data.beaconId }),
+              });
+            }
           }
+        } catch (err) {
+          console.error("비콘 수신 중 에러 발생:", err);
         }
-      } catch {}
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
+      }, 1000); // 1초마다 반복 수행
+      
+      return () => clearInterval(interval);
+    }, []);
 
   return (
     <div style={{ position: 'relative', width: '100%', height: 'calc(100vh - 57px)', overflow: 'hidden' }}>
