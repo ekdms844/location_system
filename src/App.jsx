@@ -2,8 +2,12 @@ import { MapPin, Search, MessageSquare, Mic, TrendingUp, ArrowLeft } from 'lucid
 import { useState, useEffect, useRef } from 'react';
 
 const EXHIBITS = [
-  { id: 1, x: 576, y: 494, name: 'AI 임베디드 전시', info: '하드웨어 기기 자체에 인공지능을 내장(On-Device AI)하여 네트워크 연결 없이도 AI를 구동하는 최신 기술', range: 50, beaconId: 'A1' },
-  { id: 2, x: 364, y: 404, name: 'ICT 프로젝트 전시', info: '체험 대여 가능', range: 30, beaconId: 'A2' },
+  { id: 1, x: 200, y: 200, name: 'AI 임베디드 시스템',  info: '하드웨어에 AI를 직접 내장해 네트워크 없이 동작하는 온디바이스 AI 기술 전시', range: 45, beaconId: 'A1' },
+  { id: 2, x: 400, y: 200, name: '스마트 센서 네트워크', info: '온도·습도·조도 등 다양한 센서를 IoT로 연결해 실시간 데이터를 수집·분석', range: 45, beaconId: 'A2' },
+  { id: 3, x: 600, y: 200, name: '자율주행 로봇',        info: '라이다·카메라 센서를 활용해 장애물을 인식하고 스스로 경로를 찾아가는 로봇 시연', range: 45, beaconId: 'A3' },
+  { id: 4, x: 200, y: 400, name: 'ICT PBL 프로젝트',    info: '학생들이 직접 기획·개발한 ICT 융합 프로젝트 결과물 전시 및 체험', range: 45, beaconId: 'A4' },
+  { id: 5, x: 400, y: 400, name: '딥러닝 이미지 인식',   info: '카메라로 사물을 촬영하면 딥러닝 모델이 실시간으로 분류 결과를 보여주는 체험', range: 45, beaconId: 'A5' },
+  { id: 6, x: 600, y: 400, name: '스마트 홈 제어판',     info: '음성·앱으로 조명·온도·보안을 제어하는 스마트 홈 시스템 체험 부스', range: 45, beaconId: 'A6' },
 ];
 
 const MENU_ITEMS = [
@@ -297,10 +301,12 @@ function MapSection() {
 function ExhibitsSection() {
   const congestion = useCongestion();
   const items = [
-    { name: 'AI 임베디드 전시',  category: '임베디드 / IoT',   beaconId: 'A1', dot: '#6BAED6' },
-    { name: 'ICT 프로젝트 전시', category: 'PBL 프로젝트',     beaconId: 'A2', dot: '#74C476' },
-    { name: '로봇 제어 시연',    category: '로보틱스',          beaconId: 'A3', dot: '#FDAE6B' },
-    { name: '스마트 센서 전시',  category: '센서 / 하드웨어',   beaconId: 'A4', dot: '#F768A1' },
+    { name: 'AI 임베디드 시스템',   category: '온디바이스 AI',     beaconId: 'A1', dot: '#6BAED6' },
+    { name: '스마트 센서 네트워크', category: 'IoT / 센서',        beaconId: 'A2', dot: '#74C476' },
+    { name: '자율주행 로봇',        category: '로보틱스',           beaconId: 'A3', dot: '#FDAE6B' },
+    { name: 'ICT PBL 프로젝트',    category: 'PBL 프로젝트',      beaconId: 'A4', dot: '#F768A1' },
+    { name: '딥러닝 이미지 인식',   category: '딥러닝 / 비전 AI',  beaconId: 'A5', dot: '#9B8FE8' },
+    { name: '스마트 홈 제어판',     category: '스마트 홈 / IoT',   beaconId: 'A6', dot: '#F9A8D4' },
   ];
   return (
     <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -436,9 +442,9 @@ function ChatSection() {
 /* ── 맞춤 추천 ── */
 function RecommendSection() {
   const groups = [
-    { emoji: '📍', title: '지금 주변 전시물', color: '#EEF6FB', accent: '#6BAED6', items: ['AI 임베디드 실습실 — 현재 수업 진행 중', 'ICT PBL실 — 체험 대여 가능'] },
-    { emoji: '🔥', title: '인기 전시물',       color: '#FEF9EC', accent: '#FDAE6B', items: ['스마트 센서 시연 체험', '로봇 제어 & 자율주행 전시'] },
-    { emoji: '🎯', title: '관심사 기반 추천',  color: '#FEF0F5', accent: '#F768A1', items: ['임베디드 시스템에 관심 있다면 → A1 구역', '소프트웨어 프로젝트라면 → ICT PBL실'] },
+    { emoji: '📍', title: '지금 주변 전시물', color: '#EEF6FB', accent: '#6BAED6', items: ['AI 임베디드 시스템 (A1) — 온디바이스 AI 체험', '딥러닝 이미지 인식 (A5) — 실시간 분류 시연 중'] },
+    { emoji: '🔥', title: '인기 전시물', color: '#FEF9EC', accent: '#FDAE6B', items: ['자율주행 로봇 (A3) — 대기 적음, 지금 바로 체험!', '스마트 홈 제어판 (A6) — 음성·앱 제어 직접 해보기'] },
+    { emoji: '🎯', title: '관심사 기반 추천', color: '#FEF0F5', accent: '#F768A1', items: ['하드웨어에 관심 있다면 → A1 · A2 · A3 구역', 'AI · 소프트웨어라면 → A4 · A5 구역'] },
   ];
   return (
     <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
