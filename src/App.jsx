@@ -2,8 +2,8 @@ import { MapPin, Search, MessageSquare, Mic, TrendingUp, ArrowLeft } from 'lucid
 import { useState, useEffect } from 'react';
 
 const EXHIBITS = [
-  { id: 1, x: 576, y: 494, name: 'AI 임베디드 실습실', info: '2,3,4교시 수업 진행 중', range: 50, beaconId: 'A1' },
-  { id: 2, x: 364, y: 404, name: 'ICT PBL실', info: '체험 대여 가능', range: 30, beaconId: 'A2' },
+  { id: 1, x: 576, y: 494, name: 'AI 임베디드 전시', info: '하드웨어 기기 자체에 인공지능을 내장(On-Device AI)하여 네트워크 연결 없이도 AI를 구동하는 최신 기술', range: 50, beaconId: 'A1' },
+  { id: 2, x: 364, y: 404, name: 'ICT 프로젝트 전시', info: '체험 대여 가능', range: 30, beaconId: 'A2' },
 ];
 
 const MENU_ITEMS = [
