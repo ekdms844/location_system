@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import p5 from "p5";
 import { io } from "socket.io-client"; // 👈 실시간 통신을 위한 소켓 라이브러리 추가!
 
+// 💡 [스위치] true: 격자 보임 / false: 격자 숨김
+const showGrid = false;
+
 const CANVAS_WIDTH = 362;
 const CANVAS_HEIGHT = 767;
 
@@ -92,13 +95,15 @@ const MapSketch = () => {
         p.background(245);
 
         // 1) 격자 그리기
-        p.stroke(220);
-        p.strokeWeight(1);
-        for (let x = 0; x < p.width; x += 40) {
-          p.line(x, 0, x, p.height);
-        }
-        for (let y = 0; y < p.height; y += 40) {
-          p.line(0, y, p.width, y);
+       if (showGrid){
+          p.stroke(220);
+          p.strokeWeight(1);
+          for (let x = 0; x < p.width; x += 40) {
+            p.line(x, 0, x, p.height);
+          }
+          for (let y = 0; y < p.height; y += 40) {
+            p.line(0, y, p.width, y);
+          }
         }
 
         // 2) 오브젝트 그리기
