@@ -9,13 +9,12 @@ const CANVAS_HEIGHT = 767;
 const YOUR_COMPUTER_IP = '25.4.238.217'; 
 
 const mapObjects = [
-  { x: 56,  y: 0,   w: 250, h: 40,  name: '칠판', type: 'etc', desc: '강의 및 발표용 대형 칠판입니다.' },
-  { x: 332, y: 84,  w: 30,  h: 111, name: '작품1', type: 'booth', author: '작가', desc: '작품 설명' },
-  { x: 332, y: 328, w: 30,  h: 111, name: '작품2', type: 'booth', author: '작가', desc: '작품 설명' },
-  { x: 332, y: 572, w: 30,  h: 111, name: '작품3', type: 'booth', author: '작가', desc: '작품 설명' },
-  { x: 0,   y: 572, w: 30,  h: 111, name: '작품4', type: 'booth', author: '작가', desc: '작품 설명' },
-  { x: 0,   y: 328, w: 30,  h: 111, name: '작품5', type: 'booth', author: '작가', desc: '작품 설명' },
-  { x: 0,   y: 84,  w: 30,  h: 111, name: '작품6', type: 'booth', author: '작가', desc: '작품 설명' },
+  { x: 332, y: 84,  w: 30,  h: 111, name: '작품1', type: 'booth', author: '작가명', desc: '작품 설명' },
+  { x: 332, y: 328, w: 30,  h: 111, name: '작품2', type: 'booth', author: '작가명', desc: '작품 설명' },
+  { x: 332, y: 572, w: 30,  h: 111, name: '작품3', type: 'booth', author: '작가명', desc: '작품 설명' },
+  { x: 0,   y: 572, w: 30,  h: 111, name: '작품4', type: 'booth', author: '작가명', desc: '작품 설명' },
+  { x: 0,   y: 328, w: 30,  h: 111, name: '작품5', type: 'booth', author: '작가명', desc: '작품 설명' },
+  { x: 0,   y: 84,  w: 30,  h: 111, name: '작품6', type: 'booth', author: '작가명', desc: '작품 설명' },
   { x: 337, y: 0,   w: 25,  h: 50,  name: '출입문', type: 'door', desc: '전시장 전면 출입구입니다. 통행에 유의해 주세요.' },
   { x: 337, y: 717, w: 25,  h: 50,  name: '출입문', type: 'door', desc: '전시장 후면 출입구 및 비상구입니다.' }
 ];
@@ -189,9 +188,7 @@ const MapSketch = () => {
           <button style={styles.closeBtn} onClick={() => setSelectedArtwork(null)}>✕</button>
           
           <div style={styles.contentContainer}>
-            <div style={styles.imgPlaceholder}>
-              {selectedArtwork.type === 'booth' ? 'BOOTH' : selectedArtwork.type === 'door' ? 'DOOR' : 'INFO'}
-            </div>
+            <div style={styles.imgPlaceholder}></div>
             
             <div style={styles.textGroup}>
               <h3 style={styles.title}>
