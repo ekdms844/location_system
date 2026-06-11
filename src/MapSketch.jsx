@@ -21,6 +21,38 @@ const MapSketch = () => {
   const [userPos, setUserPos] = useState({ x: 181, y: 383 });
   const p5Instance = useRef(null);
 
+  /* ── 📡 [6.11 add] 백엔드 웹소켓 실시간 연결 로직 ── */
+  useEffect(() => {
+    // 하마치 망을 통해 팀원의 백엔드 노드 서버와 실시간 통화(웹소켓) 연결 개시
+    const socket = io(`http://${YOUR_COMPUTER_IP}:3000`, {
+      transports: ['websocket'],
+      reconnectionAttempts: 5, // 연결 실패 시 재시도 횟수
+    });
+
+    socket.on('connect', () => {
+      console.log("🌐 지도 섹션: 백엔드 실시간 소켓 연결 성공!");
+    });
+
+    // 안드로이드 앱 -> 백엔드 -> 리액트로 이어지는 위치 업데이트 이벤트를 실시간 수신
+    socket.on('location_update', (data) => {
+      console.log("📍 실시간 위치 수신 데이터:", data);
+      
+      // 백엔드에서 전달되는 좌표 데이터(x, y)가 있을 때 사용자 마커 좌표 갱신
+      if (data && typeof data.x === 'number' && typeof data.y === 'number') {
+        setUserPos({ x: data.x, y: data.y });
+      }
+    });
+
+    socket.on('disconnect', () => {
+      console.log("❌ 지도 섹션: 소켓 연결 끊어짐.");
+    });
+
+    // 컴포넌트 창이 닫히면 전화를 깔끔하게 끊어서 메모리 누수 방지
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
   // 사용자 위치 업데이트 처리
   useEffect(() => {
     if (p5Instance.current && p5Instance.current.updateUserPos) {
