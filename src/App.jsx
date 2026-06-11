@@ -1,7 +1,10 @@
 import { MapPin, Search, MessageSquare, Mic, TrendingUp, ArrowLeft } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
-import MapSection from './MapSketch'; // 👈 기존 MapSection 함수 선언문은 완전히 지워주셔야 충돌이 안 납니다!
+import MapSection from './MapSketch'; // 👈 팀원분이 분리한 지도 컴포넌트 호출
 
+// 🌐 [중요] 백엔드 서버를 켠 컴퓨터의 IP 주소를 적어주세요.
+// 팀원과 테스트할 때 IP가 바뀌면 이 줄만 수정하면 아래 모든 기능(혼잡도, 챗봇)이 한 번에 연동됩니다!
+const YOUR_COMPUTER_IP = '25.4.238.217'; 
 
 const EXHIBITS = [
   { id: 1, x: 200, y: 200, name: 'AI 임베디드 시스템',  info: '하드웨어에 AI를 직접 내장해 네트워크 없이 동작하는 온디바이스 AI 기술 전시', range: 45, beaconId: 'A1' },
@@ -14,9 +17,9 @@ const EXHIBITS = [
 
 const MENU_ITEMS = [
   { id: 'map',       icon: MapPin,        label: '지도 및 경로 안내', desc: '전시물 위치 확인 & 길찾기',         color: '#EEF6FB', accent: '#6BAED6', emoji: '🗺️' },
-  { id: 'exhibits',  icon: Search,        label: '주변 전시물',       desc: '내 근처 전시물 목록',               color: '#EDF7EE', accent: '#74C476', emoji: '🔍' },
-  { id: 'chat',      icon: MessageSquare, label: 'AI 도우미',         desc: '전시물에 대해 무엇이든 물어보세요', color: '#FEF9EC', accent: '#FDAE6B', emoji: '💬' },
-  { id: 'recommend', icon: TrendingUp,    label: '맞춤 추천',         desc: '관심사 기반 전시물 추천',           color: '#FEF0F5', accent: '#F768A1', emoji: '✨' },
+  { id: 'exhibits',  icon: Search,        label: '주변 전시물',       desc: '내 근처 전시물 목록',             color: '#EDF7EE', accent: '#74C476', emoji: '🔍' },
+  { id: 'chat',      icon: MessageSquare, label: 'AI 도우미',          desc: '전시물에 대해 무엇이든 물어보세요', color: '#FEF9EC', accent: '#FDAE6B', emoji: '💬' },
+  { id: 'recommend', icon: TrendingUp,    label: '맞춤 추천',          desc: '관심사 기반 전시물 추천',           color: '#FEF0F5', accent: '#F768A1', emoji: '✨' },
 ];
 
 const T = {
@@ -29,7 +32,7 @@ const T = {
 function getCongestionLevel(count) {
   if (!count || count === 0) return { label: '여유', color: '#74C476', bg: '#EDF7EE', emoji: '🟢' };
   if (count <= 2)             return { label: '보통', color: '#FDAE6B', bg: '#FEF9EC', emoji: '🟡' };
-  return                             { label: '혼잡', color: '#F768A1', bg: '#FEF0F5', emoji: '🔴' };
+  return                               { label: '혼잡', color: '#F768A1', bg: '#FEF0F5', emoji: '🔴' };
 }
 
 // 고유 userId 생성 (세션 단위)
@@ -45,10 +48,13 @@ function useCongestion() {
   useEffect(() => {
     const fetch_ = async () => {
       try {
-        const res = await fetch('http://localhost:3000/presence');
+        // ✨ 고정된 localhost 대신 외부 컴퓨터 IP(하마치)와 동적 연동 완료!
+        const res = await fetch(`http://${YOUR_COMPUTER_IP}:3000/presence`);
         const data = await res.json();
         setCongestion(data.congestion || {});
-      } catch {}
+      } catch (err) {
+        console.error("혼잡도 데이터 조회 실패:", err);
+      }
     };
     fetch_();
     const iv = setInterval(fetch_, 5000);
@@ -119,14 +125,11 @@ function HomeMenu({ onNavigate }) {
   );
 }
 
-/* ── 지도 ── */
-
-
 /* ── 주변 전시물 ── */
 function ExhibitsSection() {
   const congestion = useCongestion();
   const items = [
-    { name: 'AI 임베디드 시스템',   category: '온디바이스 AI',     beaconId: 'A1', dot: '#6BAED6' },
+    { name: 'AI 임베디드 시스템',   category: '온디바이스 AI',    beaconId: 'A1', dot: '#6BAED6' },
     { name: '스마트 센서 네트워크', category: 'IoT / 센서',        beaconId: 'A2', dot: '#74C476' },
     { name: '자율주행 로봇',        category: '로보틱스',           beaconId: 'A3', dot: '#FDAE6B' },
     { name: 'ICT PBL 프로젝트',    category: 'PBL 프로젝트',      beaconId: 'A4', dot: '#F768A1' },
@@ -183,14 +186,15 @@ function ChatSection() {
     const loadId = Date.now() + 1;
     setMessages(prev => [...prev, { id: loadId, sender: 'bot', text: 'Guidant가 생각 중입니다...' }]);
     try {
-      const res = await fetch('http://localhost:3000/chat', {
+      // ✨ 고정된 localhost 대신 외부 컴퓨터 IP(하마치)와 동적 연동 완료!
+      const res = await fetch(`http://${YOUR_COMPUTER_IP}:3000/chat`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: userText }),
       });
       const data = await res.json();
       setMessages(prev => prev.map(m => m.id === loadId ? { ...m, text: data.reply } : m));
     } catch {
-      setMessages(prev => prev.map(m => m.id === loadId ? { ...m, text: '서버와 연결이 원활하지 않습니다. 백엔드 서버를 확인해 주세요!' } : m));
+      setMessages(prev => prev.map(m => m.id === loadId ? { ...m, text: '서버와 연결이 원활하지 않습니다. 백엔드 서버 혹은 하마치 주소를 확인해 주세요!' } : m));
     }
   };
 

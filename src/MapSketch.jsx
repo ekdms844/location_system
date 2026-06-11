@@ -1,27 +1,32 @@
 import React, { useState, useEffect, useRef } from "react";
 import p5 from "p5";
+import { io } from "socket.io-client"; // 👈 실시간 통신을 위한 소켓 라이브러리 추가!
 
 const CANVAS_WIDTH = 362;
 const CANVAS_HEIGHT = 767;
 
+// 🌐 [중요] 백엔드 서버를 켠 팀원 컴퓨터의 IP 주소를 적어주세요.
+const YOUR_COMPUTER_IP = '25.4.238.217'; 
+
 const mapObjects = [
   { x: 56,  y: 0,   w: 250, h: 40,  name: '칠판' },
-  { x: 332, y: 84, w: 30,  h: 111, name: '작품1' },
-  { x: 332, y: 328, w: 30,  h: 111, name: '작품2' },
-  { x: 332, y: 572, w: 30,  h: 111, name: '작품3' },
-  { x: 0,   y: 572, w: 30,  h: 111, name: '작품4' },
-  { x: 0,   y: 328, w: 30,  h: 111, name: '작품5' },
-  { x: 0,   y: 84, w: 30,  h: 111, name: '작품6' },
-  { x: 337,   y: 0, w: 25,  h: 50, name: '출입문' },
-  { x: 337,   y: 717, w: 25,  h: 50, name: '출입문' }
+  { x: 332, y: 84,  w: 30,  h: 111, name: 'AI 임베디드' }, // 부스 이름과 매칭되도록 텍스트 가독성 최적화
+  { x: 332, y: 328, w: 30,  h: 111, name: '스마트 센서' },
+  { x: 332, y: 572, w: 30,  h: 111, name: '자율주행로봇' },
+  { x: 0,   y: 572, w: 30,  h: 111, name: '스마트 홈' },
+  { x: 0,   y: 328, w: 30,  h: 111, name: '딥러닝인식' },
+  { x: 0,   y: 84,  w: 30,  h: 111, name: 'ICT PBL' },
+  { x: 337, y: 0,   w: 25,  h: 50,  name: '출입문' },
+  { x: 337, y: 717, w: 25,  h: 50,  name: '출입문' }
 ];
 
 const MapSketch = () => {
   const canvasRef = useRef(null);
+  // 초기 위치는 전시장 중앙(181, 383)으로 셋팅
   const [userPos, setUserPos] = useState({ x: 181, y: 383 });
   const p5Instance = useRef(null);
 
-  /* ── 📡 [6.11 add] 백엔드 웹소켓 실시간 연결 로직 ── */
+  /* ── 📡 [추가] 백엔드 웹소켓 실시간 연결 로직 ── */
   useEffect(() => {
     // 하마치 망을 통해 팀원의 백엔드 노드 서버와 실시간 통화(웹소켓) 연결 개시
     const socket = io(`http://${YOUR_COMPUTER_IP}:3000`, {
@@ -53,7 +58,7 @@ const MapSketch = () => {
     };
   }, []);
 
-  // 사용자 위치 업데이트 처리
+  // 리액트 state가 바뀌면 p5.js 내부 변수로 좌표 주입
   useEffect(() => {
     if (p5Instance.current && p5Instance.current.updateUserPos) {
       p5Instance.current.updateUserPos(userPos.x, userPos.y);
@@ -62,10 +67,10 @@ const MapSketch = () => {
 
   // p5.js 인스턴스 초기화 및 클린업
   useEffect(() => {
-    let myP5; // 로컬 변수로 인스턴스를 관리하여 클린업 안정성 확보
+    let myP5;
 
     if (canvasRef.current) {
-      canvasRef.current.innerHTML = ""; // 기존 잔재 제거
+      canvasRef.current.innerHTML = ""; 
     }
 
     const sketch = (p) => {
@@ -118,7 +123,7 @@ const MapSketch = () => {
           }
         }
 
-        // 3) 사용자 마커 그리기
+        // 3) 사용자 마커 그리기 (실시간 위치에 맞춰 그려짐)
         drawUserMarker(p, currentX, currentY);
       };
 
@@ -127,33 +132,35 @@ const MapSketch = () => {
         let pulse = p.sin(p.frameCount * 0.05) * 6;
         p.fill(0, 122, 255, 40);
         p.noStroke();
-        p.circle(x, y, 24 + pulse);
+        p.circle(x, y, 24 + pulse); // 레이더 퍼지는 효과 애니메이션
 
         p.fill(0, 122, 255);
         p.stroke(255);
         p.strokeWeight(2);
-        p.circle(x, y, 12);
+        p.circle(x, y, 12); // 중앙 고정 파란 점
         p.pop();
       };
-
+      
+      // 💡 시연 과정에서 비콘이 없을 때 수동으로 위치를 옮겨가며 강제 테스트하고 싶다면 
+      // 아래 주석(//)을 해제하면 마우스 클릭 테스트 기능도 동시에 활성화됩니다.
+      /*
       p.mousePressed = () => {
         if (p.mouseX >= 0 && p.mouseX <= p.width && p.mouseY >= 0 && p.mouseY <= p.height) {
           setUserPos({ x: p.mouseX, y: p.mouseY });
         }
       };
+      */
     };
 
-    // 인스턴스 할당
     myP5 = new p5(sketch, canvasRef.current);
     p5Instance.current = myP5;
 
-    // 컴포넌트 언마운트 또는 재실행 시 확실하게 제거
     return () => {
       if (myP5) {
         myP5.remove();
       }
     };
-  }, []); // 의존성 배열을 비워 최초 1회만 실행되게 유도
+  }, []); 
 
   return (
     <div style={{ display: "flex", justifyContent: "center", padding: "20px" }}>
