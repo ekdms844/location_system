@@ -4,7 +4,7 @@ import MapSection from './MapSketch'; // 👈 팀원분이 분리한 지도 컴�
 
 // 🌐 [중요] 백엔드 서버를 켠 컴퓨터의 IP 주소를 적어주세요.
 // 팀원과 테스트할 때 IP가 바뀌면 이 줄만 수정하면 아래 모든 기능(혼잡도, 챗봇)이 한 번에 연동됩니다!
-const YOUR_COMPUTER_IP = '25.4.238.217'; 
+const YOUR_COMPUTER_IP = '172.18.91.138'; 
 
 const EXHIBITS = [
   { id: 1, x: 200, y: 200, name: 'AI 임베디드 시스템',  info: '하드웨어에 AI를 직접 내장해 네트워크 없이 동작하는 온디바이스 AI 기술 전시', range: 45, beaconId: 'A1' },
